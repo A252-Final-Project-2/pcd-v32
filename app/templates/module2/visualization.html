@@ -1,18 +1,6 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>DLP ADVISOR | 3D Visualizer</title>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Babylon.js Core and Loaders -->
+{% block extra_head %}
 <script src="https://cdn.babylonjs.com/babylon.js"></script>
 <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
@@ -105,31 +93,10 @@
             outline: none;
         }
     </style>
-</head>
-<body class="bg-background text-on-surface font-body h-screen overflow-hidden flex flex-col">
-<!-- TopNavBar (Shared Component) -->
-<header class="sticky top-0 z-50 flex items-center justify-between px-8 h-16 w-full bg-white border-b border-slate-200 font-manrope text-sm font-medium">
-<div class="flex items-center gap-8">
-<span class="text-xl font-extrabold tracking-tight text-slate-900">LDMS</span>
-<nav class="hidden md:flex items-center gap-6">
-<a class="text-slate-500 hover:text-slate-900 transition-colors" href="{{ url_for('module2.list_projects') }}">Projects</a>
-<a class="text-blue-700 border-b-2 border-blue-700 pb-1" href="{{ url_for('module2.visualize_scan', scan_id=scan.id) }}">Visualizer</a>
-<a class="text-slate-500 hover:text-slate-900 transition-colors" href="{{ url_for('module2.upload_scan') }}">Uploads</a>
-</nav>
-</div>
-<div class="flex items-center gap-4">
-<button class="p-2 hover:bg-slate-100 rounded-lg transition-colors active:scale-95 duration-150 relative">
-<span class="material-symbols-outlined text-slate-600" data-icon="notifications">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full pointer-events-none"></span>
-</button>
-<button class="p-2 hover:bg-slate-100 rounded-lg transition-colors active:scale-95 duration-150">
-<span class="material-symbols-outlined text-slate-600" data-icon="settings">settings</span>
-</button>
-<div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary text-on-primary font-bold overflow-hidden border border-slate-200 shadow-sm">
-{{ current_user.full_name[:1].upper() if current_user.full_name else 'U' }}
-</div>
-</div>
-</header>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-[calc(100vh-64px)] overflow-hidden">
 <!-- Project Info Banner (Contextual) -->
 <div class="flex items-center justify-between px-8 py-3 bg-white text-xs border-b border-slate-200 shadow-sm z-40">
 <div class="flex items-center gap-8">
@@ -155,8 +122,7 @@
             </a>
 </div>
 </div>
-<!-- Main Content Area -->
-<main class="flex-grow flex relative overflow-hidden">
+<main class="flex-grow flex relative overflow-hidden h-[calc(100vh-64px)]">
 <!-- 3D Viewer Container (Babylon.js Surface) -->
 <div class="flex-grow relative bg-slate-100 overflow-hidden">
 <!-- Babylon JS Canvas -->
@@ -267,7 +233,7 @@
 </div>
 </aside>
 </main>
-
+</div>
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <!--  VIEW DEFECT MODAL (existing defects)                         -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -312,23 +278,6 @@
 </div>
 </div>
 </div>
-<div class="flex-grow">
-<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Engineering Notes</label>
-<textarea id="modalDefectNotes" class="w-full h-24 bg-slate-50 border border-slate-200 rounded-lg text-sm p-3 focus:ring-primary/20 resize-none outline-none transition-shadow" placeholder="Add observations or instructions for the rectification team..."></textarea>
-</div>
-<div class="flex items-center gap-3 mt-8">
-<button id="modalSaveBtn" class="flex-grow bg-primary text-on-primary py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:translate-y-[-1px] active:scale-[0.98] transition-all">Save Changes</button>
-<button onclick="closeDefectModal()" class="bg-white text-slate-700 border border-slate-200 px-4 py-2.5 rounded-lg font-bold hover:bg-slate-50 active:scale-[0.98] transition-all">Cancel</button>
-<button id="modalDeleteBtn" class="flex items-center gap-1 bg-red-50 text-red-600 border border-red-200 px-4 py-2.5 rounded-lg font-bold hover:bg-red-100 active:scale-[0.98] transition-all" title="Permanently delete this defect">
-  <span class="material-symbols-outlined text-[16px]">delete</span>
-  Delete
-</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <!--  REPORT DEFECT MODAL (pinpoint new defect submission)         -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -456,7 +405,9 @@
 
   </div>
 </div>
+{% endblock %}
 
+{% block extra_scripts %}
 <!-- Babylon JS & Logic Scripts -->
 <script>
     const SCAN_ID = {{ scan_id }};
@@ -1135,44 +1086,4 @@
     // Start System
     window.addEventListener('load', initBabylonScene);
 </script>
-
-    <!-- TOAST NOTIFICATIONS -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3">
-          {% for category, message in messages %}
-            {% set bg_color = 'bg-blue-600' %}
-            {% set text_color = 'text-white' %}
-            {% if category == 'success' %}
-              {% set bg_color = 'bg-green-600' %}
-            {% elif category == 'error' or category == 'danger' %}
-              {% set bg_color = 'bg-red-600' %}
-            {% elif category == 'warning' %}
-              {% set bg_color = 'bg-yellow-500' %}
-              {% set text_color = 'text-gray-900' %}
-            {% endif %}
-            <div class="toast-message flex items-center p-4 w-full max-w-xs rounded-lg shadow-lg opacity-100 transition-opacity duration-500 ease-in-out {{ bg_color }} {{ text_color }}" role="alert">
-              <div class="text-sm font-medium">{{ message }}</div>
-              <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-transparent hover:opacity-75 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 inline-flex h-8 w-8" onclick="this.parentElement.remove();" aria-label="Close">
-                <span class="sr-only">Close</span>
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-              </button>
-            </div>
-          {% endfor %}
-        </div>
-        <script>
-          document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-              var toasts = document.querySelectorAll('.toast-message');
-              toasts.forEach(function(toast) {
-                toast.classList.remove('opacity-100');
-                toast.classList.add('opacity-0');
-                setTimeout(function() { toast.remove(); }, 500);
-              });
-            }, 4000);
-          });
-        </script>
-      {% endif %}
-    {% endwith %}
-
-</body></html>
+{% endblock %}
